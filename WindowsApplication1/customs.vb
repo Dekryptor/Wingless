@@ -1654,8 +1654,17 @@ Module Helpers
 #Region " Variables"
 	Friend NearSF As New StringFormat() With {.Alignment = StringAlignment.Near, .LineAlignment = StringAlignment.Near}
 	Friend CenterSF As New StringFormat() With {.Alignment = StringAlignment.Center, .LineAlignment = StringAlignment.Center}
+    ''' <summary>
+    ''' The types of limiting applied.
+    ''' </summary>
     Public Enum LimitingType
+        ''' <summary>
+        ''' The r, g, b values of the resultant color cannot be less than those of the limiting color specifyied.
+        ''' </summary>
         NotLessThan
+        ''' <summary>
+        ''' The r, g, b values of the resultant color cannot be more than those of the limiting color specifyied.
+        ''' </summary>
         NotGreaterThan
     End Enum
 
@@ -1665,21 +1674,61 @@ Module Helpers
 
 
 #Region "Color"
+    ''' <summary>
+    ''' Returns a color from the specifyied argb values.
+    ''' </summary>
+    ''' <param name="a">a, the Alpha value of the color.</param>
+    ''' <param name="r">r, the Red value of the color.</param>
+    ''' <param name="g">g, the Green value of the color.</param>
+    ''' <param name="b">b, the Blue value of the color.</param>
+    ''' <returns></returns>
     Public Function col(a As Byte, r As Byte, g As Byte, b As Byte) As Color
         Return Color.FromArgb(a, r, g, b)
     End Function
+    ''' <summary>
+    ''' Returns a color from the specifyied rgb values. The Alpha value is automatically set to 255.
+    ''' </summary>
+    ''' <param name="r">r, the Red value of the color.</param>
+    ''' <param name="g">g, the Green value of the color.</param>
+    ''' <param name="b">b, the Blue value of the color.</param>
+    ''' <returns></returns>    
     Public Function col(r As Byte, g As Byte, b As Byte) As Color
         Return Color.FromArgb(r, g, b)
     End Function
+    ''' <summary>
+    ''' Returns a color from a specifyied solidbrush. The Alpha value is automatically set to 255.
+    ''' </summary>
+    ''' <param name="br">The solidbrush to use.</param>
+    ''' <returns></returns>
     Public Function col(br As SolidBrush) As Color
-		Return br.Color
-	End Function
+        Return br.Color
+    End Function
+    ''' <summary>
+    ''' Returns a color from a specifyied solidbrush with a custom Alpha value.
+    ''' </summary>
+    ''' <param name="a">The Alpha value.</param>
+    ''' <param name="br">The solidbrush to use.</param>
+    ''' <returns></returns>
     Public Function col(a As Byte, br As SolidBrush) As Color
         Return Color.FromArgb(a, br.Color)
     End Function
+    ''' <summary>
+    ''' Returns a color from specifyied color and percentage of colorisation.
+    ''' </summary>
+    ''' <param name="c">The color to use.</param>
+    ''' <param name="sat!">The percentage of colorisation. 0 means Black and 1 means full color.</param>
+    ''' <returns></returns>
     Public Function col(c As Color, sat!)
         Return Color.FromArgb(CByte(CInt(c.A)), CByte(Math.Min(255, Math.Max(0, CInt(c.R) * sat))), CByte(Math.Min(255, Math.Max(0, CInt(c.G) * sat))), CByte(Math.Min(255, Math.Max(0, CInt(c.B) * sat))))
     End Function
+    ''' <summary>
+    ''' Returns a color from specifyied color and percentage of colorisation with a limiting color appliyed to the resulting colorisation. The resulting color's rgb values can't go beyond the rgb values of the limiting color.
+    ''' </summary>
+    ''' <param name="c">The color to use.</param>
+    ''' <param name="sat!">The percentage of colorisation. 0 means Black and 1 means full color.</param>
+    ''' <param name="limit">The limiting color to use.</param>
+    ''' <param name="l">The limiting type to use, either NotLessThan or NotMoreThan.</param>
+    ''' <returns></returns>
     Public Function col(c As Color, sat!, limit As Color, l As LimitingType)
         Dim floor, ceil As Color
         If l = LimitingType.NotLessThan Then
@@ -1691,32 +1740,88 @@ Module Helpers
         End If
         Return Color.FromArgb(CByte(CInt(c.A)), CByte(Math.Min(CInt(ceil.R), Math.Max(CInt(floor.R), CInt(c.R) * sat))), CByte(Math.Min(CInt(ceil.R), Math.Max(CInt(floor.G), CInt(c.G) * sat))), CByte(Math.Min(CInt(ceil.R), Math.Max(CInt(floor.B), CInt(c.B) * sat))))
     End Function
+    ''' <summary>
+    ''' Returns a gray color with the r,g and b values as the specified value.
+    ''' </summary>
+    ''' <param name="n">The gray value.</param>
+    ''' <returns></returns>
     Public Function col(n As Byte) As Color
         Return Color.FromArgb(n, n, n)
     End Function
+    ''' <summary>
+    ''' Returns a gray color with the r,g and b values as the specified value and an additional Alpha value.
+    ''' </summary>
+    ''' <param name="a">The Alpha value.</param>
+    ''' <param name="n">The gray value.</param>
+    ''' <returns></returns>    
     Public Function col(a As Byte, n As Byte) As Color
         Return Color.FromArgb(a, n, n, n)
     End Function
+    ''' <summary>
+    ''' Returns a color based on a specifyied color and an Alpha value.
+    ''' </summary>
+    ''' <param name="a">The Alpha value.</param>
+    ''' <param name="c">The color to use.</param>
+    ''' <returns></returns>
     Public Function col(a As Byte, c As Color) As Color
         Return Color.FromArgb(a, c)
     End Function
 
+    ''' <summary>
+    ''' Returns a color with all the r,g,b values of the color reduced by the specifyied value.
+    ''' </summary>
+    ''' <param name="c">The base color.</param>
+    ''' <param name="n">The value to reduce.</param>
+    ''' <returns></returns>
     Public Function lc(c As Color, n As Integer) As Color
         Return Color.FromArgb(CByte(Math.Abs(CInt(c.A))), CByte(Math.Abs(CInt(c.R) - n)), CByte(Math.Abs(CInt(c.G) - n)), CByte(Math.Abs(CInt(c.B) - n)))
     End Function
+    ''' <summary>
+    ''' Returns a color with all the r,g,b values of the color reduced by their specifyied r,g,b values.
+    ''' </summary>
+    ''' <param name="c">The base color.</param>
+    ''' <param name="r%">The value to reduce from the red value.</param>
+    ''' <param name="g%">The value to reduce from the green value.</param>
+    ''' <param name="b%">The value to reduce from the blue value.</param>
+    ''' <returns></returns>
     Public Function lc(c As Color, r%, g%, b%) As Color
         Return Color.FromArgb(CByte(Math.Abs(CInt(c.A))), CByte(Math.Abs(CInt(c.R) - r)), CByte(Math.Abs(CInt(c.G) - g)), CByte(Math.Abs(CInt(c.B) - b)))
     End Function
+
+    ''' <summary>
+    ''' Returns a color with all the r,g,b values of the color increased by the specifyied value.
+    ''' </summary>
+    ''' <param name="c">The base color.</param>
+    ''' <param name="n">The value to increase.</param>
+    ''' <returns></returns>
     Public Function ic(c As Color, n As Integer) As Color
 		Return Color.FromArgb(CByte(Math.Min(255, CInt(c.A))), CByte(Math.Min(255, CInt(c.R) + n)), CByte(Math.Min(255, CInt(c.G) + n)), CByte(Math.Min(255, CInt(c.B) + n)))
 	End Function
+    ''' <summary>
+    ''' Returns a color with all the r,g,b values of the color increased by their specifyied r,g,b values.
+    ''' </summary>
+    ''' <param name="c">The base color.</param>
+    ''' <param name="r%">The value to increase from the red value.</param>
+    ''' <param name="g%">The value to increase from the green value.</param>
+    ''' <param name="b%">The value to increase from the blue value.</param>
+    ''' <returns></returns>   
     Public Function ic(c As Color, r%, g%, b%) As Color
         Return Color.FromArgb(CByte(Math.Min(255, CInt(c.A))), CByte(Math.Min(255, CInt(c.R) + r)), CByte(Math.Min(255, CInt(c.G) + g)), CByte(Math.Min(255, CInt(c.B) + b)))
     End Function
 
+    ''' <summary>
+    ''' Returns an inverted color from a base color.
+    ''' </summary>
+    ''' <param name="Color">The base color.</param>
+    ''' <returns></returns>
     Public Function Invert(ByVal Color As Color) As Color
         Return Color.FromArgb(Color.A, 255 - Color.R, 255 - Color.G, 255 - Color.B)
     End Function
+    ''' <summary>
+    ''' Returns color.White if the base color is a dark color and color.Black if the base color is a light color.
+    ''' </summary>
+    ''' <param name="c"></param>
+    ''' <returns></returns>
     Public Function rescol(c As Color) As Color
         'Dim t = (Val(CStr(c.R)) + Val(CStr(c.G)) + Val(CStr(c.B))) / 3 '				stupid bug
         Dim t = CInt(CByte(c.R)) + CInt(CByte(c.G)) + CInt(CByte(c.B))
@@ -1725,18 +1830,44 @@ Module Helpers
 
     'lum = Y=0.3RED+0.59GREEN+0.11Blue   rgb(y,y,y)
 
+    ''' <summary>
+    ''' Returns a black-and-white version of the base color.The alpha value is automatically assumed 255.
+    ''' </summary>
+    ''' <param name="c">The base color</param>
+    ''' <returns></returns>
     Public Function bw(c As Color) As Color
         Dim y = CByte(CInt(c.R) * 0.3) + CByte(CInt(c.G) * 0.59) + CByte(CInt(c.B) * 0.11)
         Return col(CByte(CInt(c.A)), y)
     End Function
+    ''' <summary>
+    ''' Returns a black-and-white version of the base color with an additional Alpha value.
+    ''' </summary>
+    ''' <param name="a">The Alpha Value.</param>
+    ''' <param name="c">The base color.</param>
+    ''' <returns></returns>
     Public Function bw(a As Byte, c As Color) As Color
         Dim y = CByte(CInt(c.R) * 0.3) + CByte(CInt(c.G) * 0.59) + CByte(CInt(c.B) * 0.11)
         Return col(a, y)
     End Function
+    ''' <summary>
+    ''' Returns a black-and-white version of the base color from the r,g,b values.The alpha value is automatically assumed 255.
+    ''' </summary>
+    ''' <param name="r">The Red value.</param>
+    ''' <param name="g">The Green value.</param>
+    ''' <param name="b">The Blue value.</param>
+    ''' <returns></returns>
     Public Function bw(r As Byte, g As Byte, b As Byte) As Color
         Dim y = r * 0.3 + g * 0.59 + b * 0.11
         Return col(y)
     End Function
+    ''' <summary>
+    ''' Returns a black-and-white version of the base color from the a,r,g,b values with an additional Alpha value.
+    ''' </summary>
+    ''' <param name="a">The Alpha value.</param>
+    ''' <param name="r">The Red value.</param>
+    ''' <param name="g">The Green value.</param>
+    ''' <param name="b">The Blue value.</param>
+    ''' <returns></returns>
     Public Function bw(a As Byte, r As Byte, g As Byte, b As Byte) As Color
         Dim y = r * 0.3 + g * 0.59 + b * 0.11
         Return col(a, y)
@@ -1744,75 +1875,192 @@ Module Helpers
 #End Region
 
 #Region "Pen & Brush"
+    ''' <summary>
+    ''' Assigns a new pen made from the specifyied color to the specifyied pen variable.
+    ''' </summary>
+    ''' <param name="c">The base color.</param>
+    ''' <param name="p">The pen variable.</param>
     Public Sub mp(c As Color, ByRef p As Pen)
-		p = New Pen(c)
-	End Sub
-	Public Sub mp(br As Brush, ByRef p As Pen)
-		p = New Pen(br)
-	End Sub
-	Public Sub mp(c As Color, w!, ByRef p As Pen)
+        p = New Pen(c)
+    End Sub
+    ''' <summary>
+    ''' Assigns a new pen made from the color extracted from the specifyied brush to the specifyied pen variable.
+    ''' </summary>
+    ''' <param name="br">The base brush.</param>
+    ''' <param name="p">The pen variable.</param>
+    Public Sub mp(br As Brush, ByRef p As Pen)
+        p = New Pen(br)
+    End Sub
+    ''' <summary>
+    ''' Assigns a new pen made from the specifyied color and the specifyied width to the specifyied pen variable.
+    ''' </summary>
+    ''' <param name="c">The base color.</param>
+    ''' <param name="w">The width of the pen.</param>
+    ''' <param name="p">The pen variable.</param>
+    Public Sub mp(c As Color, w!, ByRef p As Pen)
         p = New Pen(c, w)
     End Sub
+    ''' <summary>
+    ''' Assigns a new pen made from the color extracted from the specifyied brush and the specifyied width to the specifyied pen variable.
+    ''' </summary>
+    ''' <param name="br">The base brush.</param>
+    ''' <param name="w">The width of the pen.</param>
+    ''' <param name="p">The pen variable.</param>
     Public Sub mp(br As Brush, w!, ByRef p As Pen)
         p = New Pen(br, w)
     End Sub
+    ''' <summary>
+    ''' Returns a new pen made from the color extracted from the specifyied brush and the specifyied width.
+    ''' </summary>
+    ''' <param name="br">The base brush.</param>
+    ''' <param name="w">The width of the pen.</param>
     Public Function mp(br As Brush, w!) As Pen
         Return New Pen(br, w)
     End Function
+    ''' <summary>
+    ''' Returns a new pen made from the specifyied color.
+    ''' </summary>
+    ''' <param name="c">The base color.</param>
     Public Function mp(c As Color) As Pen
         Return New Pen(c)
     End Function
+    ''' <summary>
+    ''' Returns a new pen made from the color extracted from the specifyied brush.
+    ''' </summary>
+    ''' <param name="br">The base brush.</param>
     Public Function mp(br As Brush) As Pen
         Return New Pen(br)
     End Function
+    ''' <summary>
+    ''' Returns a new pen made from the specifyied color and the specifyied width.
+    ''' </summary>
+    ''' <param name="c">The base color.</param>
+    ''' <param name="w">The width of the pen.</param>
     Public Function mp(c As Color, w!) As Pen
         Return New Pen(c, w)
     End Function
-
+    ''' <summary>
+    ''' Assigns a new SoliBrush made from the specifyied color to the specifyied SoliBrush variable.
+    ''' </summary>
+    ''' <param name="c">The base color.</param>
+    ''' <param name="b">The SoliBrush variable.</param>
     Public Sub mb(c As Color, ByRef b As SolidBrush)
         b = New SolidBrush(c)
     End Sub
+    ''' <summary>
+    ''' Returns a new SolidBrush made from the specifyied color.
+    ''' </summary>
+    ''' <param name="c">The base color.</param>
     Public Function mb(c As Color) As SolidBrush
         Return New SolidBrush(c)
     End Function
 #End Region
 
 #Region "Rectangle"
+    ''' <summary>
+    ''' Returns a rectangle with bounds as the sender object's bounds.
+    ''' </summary>
+    ''' <param name="Sender">The sender object.</param>
+    ''' <returns></returns>
     Function rct(Sender As Object) As Rectangle
         Return rct(0, 0, Sender.width, Sender.height)
     End Function
+    ''' <summary>
+    ''' Returns a rectangle with bounds as the sender object's bounds with an applied offset.
+    ''' </summary>
+    ''' <param name="Sender">The sender object.</param>
+    ''' <param name="offset%">Offset to apply.</param>
+    ''' <returns></returns>
     Function rct(Sender As Object, offset%) As Rectangle
         Return rct(offset, offset, Sender.width - 2 * offset, Sender.height - 2 * offset)
     End Function
+    ''' <summary>
+    ''' Returns a rectangle with the specifyied height and width.
+    ''' </summary>
+    ''' <param name="w%">Width of the rectangle.</param>
+    ''' <param name="h%">Height of the rectangle.</param>
+    ''' <returns></returns>
     Function rct(w%, h%) As Rectangle
         Return rct(0, 0, w, h)
     End Function
+    ''' <summary>
+    ''' Returns a rectangle with optional shifts of width, height, XLocation and YLocation.
+    ''' </summary>
+    ''' <param name="r">The base rectangle.</param>
+    ''' <param name="xshift%">Shift in XPosition.</param>
+    ''' <param name="yshift%">Shift in YPosition.</param>
+    ''' <param name="WidthShift%">Shift in Width.</param>
+    ''' <param name="HeightShift%">Shift in Height.</param>
+    ''' <returns></returns>
     Function rct(r As Rectangle, Optional xshift% = 0, Optional yshift% = 0, Optional WidthShift% = 0, Optional HeightShift% = 0) As Rectangle
-		Return rct(r.X + xshift, r.Y + yshift, r.Width + WidthShift, r.Height + HeightShift)
-	End Function
+        Return rct(r.X + xshift, r.Y + yshift, r.Width + WidthShift, r.Height + HeightShift)
+    End Function
+    ''' <summary>
+    ''' Returns the rectangle associated with the specifyied LinearGradientBrush.
+    ''' </summary>
+    ''' <param name="lgb">The base LinearGradientBrush.</param>
+    ''' <returns></returns>
     Function rct(lgb As LinearGradientBrush) As Rectangle
         Dim r = lgb.Rectangle
         Return rct(r.X, r.Y, r.Width, r.Height)
     End Function
+    ''' <summary>
+    ''' Returns the rectangle associated with the specifyied LinearGradientBrush with optional shifts of width, height, XLocation and YLocation.
+    ''' </summary>
+    ''' <param name="lgb">The base LinearGradientBrush.</param>
+    ''' <param name="xshift%">Shift in XPosition.</param>
+    ''' <param name="yshift%">Shift in YPosition.</param>
+    ''' <param name="WidthShift%">Shift in Width.</param>
+    ''' <param name="HeightShift%">Shift in Height.</param>
+    ''' <returns></returns>
     Function rct(lgb As LinearGradientBrush, Optional xshift% = 0, Optional yshift% = 0, Optional WidthShift% = 0, Optional HeightShift% = 0) As Rectangle
         Dim r = lgb.Rectangle
         Return rct(r.X + xshift, r.Y + yshift, r.Width + WidthShift, r.Height + HeightShift)
     End Function
+    ''' <summary>
+    ''' Returns a rectangle with the specifyied values of X, Y, Width and Height.
+    ''' </summary>
+    ''' <param name="x%">XPosition</param>
+    ''' <param name="y%">YPosition</param>
+    ''' <param name="w%">Width</param>
+    ''' <param name="h%">Height</param>
+    ''' <returns></returns>
     Function rct(x%, y%, w%, h%) As Rectangle
-		Return New Rectangle(x, y, w, h)
-	End Function
+        Return New Rectangle(x, y, w, h)
+    End Function
 #End Region
 
 #Region "Point"
+    ''' <summary>
+    ''' Returns a point with the specifyied co-ordinates.
+    ''' </summary>
+    ''' <param name="x!">The X co-ordinate.</param>
+    ''' <param name="y!">The Y co-ordinate.</param>
+    ''' <returns></returns>
     Public Function pt(x!, y!) As Point
         Return New Point(x, y)
     End Function
+    ''' <summary>
+    ''' Returns the location of the specifyied rectangle.
+    ''' </summary>
+    ''' <param name="r">The base rectangle.</param>
+    ''' <returns></returns>
     Public Function pt(r As Rectangle) As Point
         Return New Point(r.Location.X, r.Location.Y)
     End Function
+    ''' <summary>
+    ''' Returns the location of the specifyied object.
+    ''' </summary>
+    ''' <param name="o">The base object.</param>
+    ''' <returns></returns>
     Public Function pt(o As Object) As Point
         Return New Point(o.Location.X, o.Location.Y)
     End Function
+    ''' <summary>
+    ''' Returns a point with the same x and y co-ordinates.
+    ''' </summary>
+    ''' <param name="n!">Distance from either axis.</param>
+    ''' <returns></returns>
     Public Function pt(n!) As Point
         Return New Point(n, n)
     End Function

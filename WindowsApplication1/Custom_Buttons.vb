@@ -11,7 +11,15 @@ Class custom_Material_Button
     Dim hc As Color = col(0, 0)
     Private w! = 0.0
     Dim iso! = 0
-
+    Private fc As Color = col(100, 0) : <System.ComponentModel.Category("Appearance")> Public Property FloodColor As Color
+        Get
+            Return fc
+        End Get
+        Set(value As Color)
+            fc = value
+            Invalidate()
+        End Set
+    End Property
 
     Sub New()
         Height = 150
@@ -48,8 +56,8 @@ Class custom_Material_Button
 
         G.FillRectangle(mb(hc), rct(Me))
 
-        G.FillEllipse(mb(col(Math.Abs(150 * (1 - (w / (total + 0.001)))), ForeColor)), rct(x - w, y - w, w * 2, w * 2))
-        DrawText(Brushes.Black, HorizontalAlignment.Center, 0, 0)
+        G.FillEllipse(mb(col(Math.Abs(150 * (1 - (w / (total + 0.001)))), fc)), rct(x - w, y - w, w * 2, w * 2))
+        DrawText(mb(ForeColor), HorizontalAlignment.Center, 0, 0)
     End Sub
 
 
